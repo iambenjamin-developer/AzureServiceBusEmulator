@@ -93,7 +93,7 @@ namespace SubscriberWorker
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
             var obj = JsonSerializer.Deserialize<LeadModel>(body);
-
+            //throw new Exception("Error de prueba para el manejador de errores");
             _logger.LogInformation($"Lead Id: {obj.LeadId}");
             // complete the message. messages is deleted from the subscription.
             // Confirmamos al emulador que procesamos el mensaje correctamente
