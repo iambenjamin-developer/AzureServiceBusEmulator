@@ -85,14 +85,16 @@ namespace SubscriberWorker
         private async Task MessageHandler(ProcessMessageEventArgs args)
         {
             string body = args.Message.Body.ToString();
-            _logger.LogInformation("Mensaje Recibido: {body}", body);
+            //_logger.LogInformation("Mensaje Recibido: {body}", body);
 
-            Console.WriteLine($"Received: {body} from subscription.");
+            //Console.WriteLine($"Received: {body} from subscription.");
 
             if(string.IsNullOrWhiteSpace(body)) return;
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
             var obj = JsonSerializer.Deserialize<LeadModel>(body);
+
+            _logger.LogInformation($"Lead Id: {obj.LeadId}");
             // complete the message. messages is deleted from the subscription.
             // Confirmamos al emulador que procesamos el mensaje correctamente
             await args.CompleteMessageAsync(args.Message);

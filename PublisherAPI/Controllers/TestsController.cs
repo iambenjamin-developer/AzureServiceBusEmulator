@@ -86,6 +86,7 @@ namespace PublisherAPI.Controllers
             if (request.LeadId == "string")
             {
                 request = JsonSerializer.Deserialize<MessageModel>(example)!;
+                request.LeadId = Random.Shared.Next(10000, 100000).ToString();
             }
 
             string? msg = System.Text.Json.JsonSerializer.Serialize(request);
