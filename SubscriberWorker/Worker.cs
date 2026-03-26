@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using System.Diagnostics;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace SubscriberWorker
@@ -7,6 +8,7 @@ namespace SubscriberWorker
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         // the client that owns the connection and can be used to create senders and receivers
         private readonly ServiceBusClient _client;
@@ -14,9 +16,10 @@ namespace SubscriberWorker
         // the processor that reads and processes messages from the subscription
         private readonly ServiceBusProcessor _processor;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
+            _httpClientFactory = httpClientFactory;
 
             // The Service Bus client types are safe to cache and use as a singleton for the lifetime
             // of the application, which is best practice when messages are being published or read regularly.
@@ -89,12 +92,16 @@ namespace SubscriberWorker
 
             //Console.WriteLine($"Received: {body} from subscription.");
 
-            if(string.IsNullOrWhiteSpace(body)) return;
+            if (string.IsNullOrWhiteSpace(body)) return;
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
             var obj = JsonSerializer.Deserialize<LeadModel>(body);
             //throw new Exception("Error de prueba para el manejador de errores");
             _logger.LogInformation($"Lead Id: {obj.LeadId}");
+
+
+            await SendWebHook(obj);
+
             // complete the message. messages is deleted from the subscription.
             // Confirmamos al emulador que procesamos el mensaje correctamente
             await args.CompleteMessageAsync(args.Message);
@@ -107,6 +114,39 @@ namespace SubscriberWorker
             _logger.LogError(args.Exception, "Error en el procesador: {source}", args.ErrorSource);
             Console.WriteLine(args.Exception.ToString());
             return Task.CompletedTask;
+        }
+
+        private async Task<bool> SendWebHook(LeadModel lead)
+        {
+            if (lead != null)
+            {
+                // 3. Crear el cliente HTTP y enviar el POST
+                var httpClient = _httpClientFactory.CreateClient();
+
+                // URL de tu API externa
+                string url = "https://webhook.site/8e76d1f6-511d-4318-9703-8fa65f2d116b";
+
+                _logger.LogInformation("Enviando POST a {url}...", url);
+
+                var response = await httpClient.PostAsJsonAsync(url, lead);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("POST exitoso. Status: {code}", response.StatusCode);
+
+                    //// 4. Completar el mensaje en Service Bus solo si el POST fue exitoso
+                    //await args.CompleteMessageAsync(args.Message);
+                }
+                else
+                {
+                    _logger.LogError("Error en el POST: {code}", response.StatusCode);
+                    // Opcional: Abandonar el mensaje para reintentar más tarde
+                    //await args.AbandonMessageAsync(args.Message);
+                }
+
+            }
+
+            return true;
         }
     }
 }
