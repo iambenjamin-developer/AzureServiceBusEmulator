@@ -25,7 +25,7 @@ namespace PublisherAPI.Controllers
 
             var client = new ServiceBusClient("Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;");
             var sender = client.CreateSender("mi-topico-local");
-            await sender.SendMessageAsync(new ServiceBusMessage("Hola Mundo Local"));
+            await sender.SendMessageAsync(new ServiceBusMessage("Hola BenjaMundo Local"));
 
             var result = Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
