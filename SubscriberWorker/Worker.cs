@@ -99,12 +99,19 @@ namespace SubscriberWorker
             //throw new Exception("Error de prueba para el manejador de errores");
             _logger.LogInformation($"Lead Id: {obj.LeadId}");
 
+            bool sent = await SendWebHook(obj);
+            if (sent)
+            {
+                // complete the message. messages is deleted from the subscription.
+                // Confirmamos al emulador que procesamos el mensaje correctamente
+                await args.CompleteMessageAsync(args.Message);
+            }
+            else
+            {
+                await args.AbandonMessageAsync(args.Message);
+            }
 
-            await SendWebHook(obj);
 
-            // complete the message. messages is deleted from the subscription.
-            // Confirmamos al emulador que procesamos el mensaje correctamente
-            await args.CompleteMessageAsync(args.Message);
         }
 
         // handle any errors when receiving messages
@@ -132,6 +139,7 @@ namespace SubscriberWorker
                     LEADID = lead.LeadId,
                     SOURCE = $"{Guid.NewGuid()}_nombre plataforma"
                 };
+
                 var response = await httpClient.PostAsJsonAsync(url, body);
 
                 if (response.IsSuccessStatusCode)
@@ -140,12 +148,14 @@ namespace SubscriberWorker
 
                     //// 4. Completar el mensaje en Service Bus solo si el POST fue exitoso
                     //await args.CompleteMessageAsync(args.Message);
+                    return true;
                 }
                 else
                 {
                     _logger.LogError("Error en el POST: {code}", response.StatusCode);
                     // Opcional: Abandonar el mensaje para reintentar más tarde
                     //await args.AbandonMessageAsync(args.Message);
+                    return false;
                 }
 
             }
