@@ -127,8 +127,12 @@ namespace SubscriberWorker
                 string url = "https://webhook.site/8e76d1f6-511d-4318-9703-8fa65f2d116b";
 
                 _logger.LogInformation("Enviando POST a {url}...", url);
-
-                var response = await httpClient.PostAsJsonAsync(url, lead);
+                var body = new
+                {
+                    LEADID = lead.LeadId,
+                    SOURCE = $"{Guid.NewGuid()}_nombre plataforma"
+                };
+                var response = await httpClient.PostAsJsonAsync(url, body);
 
                 if (response.IsSuccessStatusCode)
                 {
