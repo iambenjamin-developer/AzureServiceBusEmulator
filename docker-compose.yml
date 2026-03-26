@@ -6,7 +6,7 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=Password123! # Cambia esto si quieres
     ports:
-      - "1433:1433"
+      - "1435:1433" # Windows entra por el 1435, el contenedor recibe en el 1433
 
   emulator:
     image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
