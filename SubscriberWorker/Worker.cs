@@ -137,7 +137,7 @@ namespace SubscriberWorker
                 var body = new
                 {
                     LEADID = lead.LeadId,
-                    SOURCE = $"{Guid.NewGuid()}_nombre plataforma"
+                    SOURCE = $"{Guid.NewGuid()}_nombre_plataforma"
                 };
 
                 var response = await httpClient.PostAsJsonAsync(url, body);
