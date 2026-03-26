@@ -1,5 +1,6 @@
 using Azure.Messaging.ServiceBus;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace SubscriberWorker
 {
@@ -88,6 +89,10 @@ namespace SubscriberWorker
 
             Console.WriteLine($"Received: {body} from subscription.");
 
+            if(string.IsNullOrWhiteSpace(body)) return;
+
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
+            var obj = JsonSerializer.Deserialize<LeadModel>(body);
             // complete the message. messages is deleted from the subscription.
             // Confirmamos al emulador que procesamos el mensaje correctamente
             await args.CompleteMessageAsync(args.Message);
