@@ -87,6 +87,7 @@ namespace PublisherAPI.Controllers
             {
                 request = JsonSerializer.Deserialize<MessageModel>(example)!;
                 request.LeadId = Random.Shared.Next(10000, 100000).ToString();
+                request.LeadSource = "Test_Source_" + request.LeadId;
             }
 
             string? msg = System.Text.Json.JsonSerializer.Serialize(request);
