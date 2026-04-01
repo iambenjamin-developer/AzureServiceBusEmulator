@@ -9,6 +9,7 @@ namespace PublisherAPI.Controllers
     [ApiController]
     public class TestsController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         string example = @"{
   ""SITENUMBER"": ""29024"",
   ""LEADID"": ""18937"",
@@ -79,6 +80,12 @@ namespace PublisherAPI.Controllers
   ""LEADORIGIN"": null
 }";
 
+
+        public TestsController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         [HttpPost]
         [Route("Publish")]
         public async Task<IActionResult> Publish([FromBody] MessageModel request)
@@ -90,8 +97,12 @@ namespace PublisherAPI.Controllers
             }
 
             string? msg = System.Text.Json.JsonSerializer.Serialize(request);
-            var client = new ServiceBusClient("Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;");
-            var sender = client.CreateSender("mi-topico-local");
+
+            string connectionString = _configuration["AzureServiceBus:ConnectionString"]!;
+            string topicName = _configuration["AzureServiceBus:TopicName"]!;
+
+            var client = new ServiceBusClient(connectionString);
+            var sender = client.CreateSender(topicName);
             await sender.SendMessageAsync(new ServiceBusMessage(msg));
 
             return Ok(msg);

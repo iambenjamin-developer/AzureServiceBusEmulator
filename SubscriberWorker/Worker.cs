@@ -9,6 +9,7 @@ namespace SubscriberWorker
     {
         private readonly ILogger<Worker> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
         // the client that owns the connection and can be used to create senders and receivers
         private readonly ServiceBusClient _client;
@@ -16,10 +17,11 @@ namespace SubscriberWorker
         // the processor that reads and processes messages from the subscription
         private readonly ServiceBusProcessor _processor;
 
-        public Worker(ILogger<Worker> logger, IHttpClientFactory httpClientFactory)
+        public Worker(ILogger<Worker> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
 
             // The Service Bus client types are safe to cache and use as a singleton for the lifetime
             // of the application, which is best practice when messages are being published or read regularly.
@@ -27,15 +29,16 @@ namespace SubscriberWorker
             // Replace the <NAMESPACE-CONNECTION-STRING> placeholder
 
             // 1. IMPORTANTE: La cadena de conexión debe incluir UseDevelopmentEmulator=true
-            // En un entorno real, esto iría en appsettings.json
-            string connectionString = "Endpoint=sb://localhost:5672;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;";
+            string connectionString = _configuration["AzureServiceBus:ConnectionString"]!;
+            string topicName = _configuration["AzureServiceBus:TopicName"]!;
+            string subscriptionName = _configuration["AzureServiceBus:SubscriptionName"]!;
 
             _client = new ServiceBusClient(connectionString);
 
             // create a processor that we can use to process the messages
             // Replace the <TOPIC-NAME> and <SUBSCRIPTION-NAME> placeholders
             // 2. Creamos el procesador una sola vez
-            _processor = _client.CreateProcessor("mi-topico-local", "SuscripcionA", new ServiceBusProcessorOptions
+            _processor = _client.CreateProcessor(topicName, subscriptionName, new ServiceBusProcessorOptions
             {
                 AutoCompleteMessages = false, // Lo manejamos manualmente para mayor control
                 MaxConcurrentCalls = 1        // Procesar de 1 en 1 (puedes subirlo)
@@ -131,7 +134,7 @@ namespace SubscriberWorker
                 var httpClient = _httpClientFactory.CreateClient();
 
                 // URL de tu API externa
-                string url = "https://webhook.site/8e76d1f6-511d-4318-9703-8fa65f2d116b";
+                string url = _configuration["WebhookUrl"]!;
 
                 _logger.LogInformation("Enviando POST a {url}...", url);
                 var body = new
