@@ -51,121 +51,155 @@ namespace PublisherAPI.Controllers
         {
             var utcNow = DateTimeOffset.UtcNow;
 
-            var message = new MessageModel
-            {
-                SiteNumber = "29024",
-                LeadId = "18937",
-                LeadType = "Offer_NV",
-                LeadSource = "Volkswagen_google",
-                Status = "Assigned",
-                Brand = "Volkswagen",
-                Model = "Tera",
-                CommissionNumber = "0",
-                CommissionYear = "0",
-                TrackingId = "LMSCL742936",
-                ArchivedFlag = "false",
-                LeadOwnerName = "Carla Reyes",
+            // Definimos el punto de partida (hoy a la hora actual, minutos y segundos en 0 para limpieza)
+            var baseDate = new DateTimeOffset(utcNow.Year, utcNow.Month, utcNow.Day, utcNow.Hour, 0, 0, TimeSpan.Zero);
 
-                // Usamos las variables de fecha directamente
-                LeadCreationDate = utcNow.AddDays(-1),
-                LeadLastChangeDate = utcNow.AddDays(-1),
-                LeadAssignedToDealer = DateTimeOffset.UtcNow,
-                StatusTimestamp = DateTimeOffset.UtcNow,
+            // Ejemplo 1: Fecha Base (0 horas agregadas)
+            var leadDate1 = baseDate.AddHours(-1).AddMinutes(-11).AddSeconds(24).AddMicroseconds(456);
 
-                ImportedFlag = "false",
-                NumberOfOffersHandedOver = "0"
-            };
+            // Ejemplo 2: +3 horas
+            var leadDate2 = baseDate.AddHours(-3).AddMinutes(22).AddSeconds(11).AddMicroseconds(123);
 
+            // Ejemplo 3: +6 horas
+            var leadDate3 = baseDate.AddHours(6).AddMinutes(-3).AddSeconds(59).AddMicroseconds(564);
 
-            // Ejemplo 1: Lead de Ford - En Proceso (Vía Facebook Ads)
+            // Ejemplo 4: +9 horas
+            var leadDate4 = baseDate.AddHours(-9).AddMinutes(-8).AddSeconds(18).AddMicroseconds(152);
+
+            // Ejemplo 5: +12 horas
+            var leadDate5 = baseDate.AddHours(-12).AddMinutes(6).AddSeconds(19).AddMicroseconds(457);
+
+            // Ejemplo 6: +15 horas
+            var leadDate6 = baseDate.AddHours(-15).AddMinutes(10).AddSeconds(23).AddMicroseconds(128);
+
+            // 1. MERCEDES-BENZ - Lead de Alta Gama (Vía LinkedIn)
             var message1 = new MessageModel
             {
-                SiteNumber = "10050",
-                LeadId = "22445",
-                LeadType = "Used_Car",
-                LeadSource = "Facebook_Ads",
-                Status = "In Progress",
-                Brand = "Ford",
-                Model = "Ranger",
-                TrackingId = "FB-TRK-9921",
-                LeadOwnerName = "Juan Pérez",
-                LeadCreationDate = utcNow.AddDays(-3),
-                LeadLastChangeDate = utcNow.AddDays(-3),
-                StatusTimestamp = utcNow.AddHours(-5)
+                SiteNumber = "20010",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "Luxury_NV",
+                LeadSource = "LinkedIn_Ads",
+                Status = "New",
+                Brand = "Mercedes-Benz",
+                Model = "EQE SUV",
+                TrackingId = "LNKD-EV-772",
+                LeadOwnerName = "Sofía Valenzuela",
+                LeadCreationDate = leadDate1,
+                LeadLastChangeDate = leadDate1,
+                StatusTimestamp = utcNow,
+                UtmMedium = "Social_Paid",
+                CampaignId = "CAMP-EV-2026",
+                CampaignDescription = "Lanzamiento Línea Eléctrica",
+                Remark = "CEO de empresa logística interesado en flota eléctrica corporativa.",
             };
 
-            // Ejemplo 2: Lead de Audi - Ganado (Búsqueda Orgánica)
+            // 2. HONDA - Usado Certificado (Vía Web Directa)
             var message2 = new MessageModel
             {
-                SiteNumber = "33001",
-                LeadId = "55920",
-                LeadType = "Luxury_NV",
-                LeadSource = "Organic_Search",
-                Status = "Won",
-                Brand = "Audi",
-                Model = "Q5",
-                CommissionNumber = "887766",
-                LeadOwnerName = "Maria Garcia",
-                LeadCreationDate = utcNow.AddDays(-5),
-                LeadLastChangeDate = utcNow.AddDays(-5),
-                StatusTimestamp = utcNow,
-                LeadWon = "true"
+                SiteNumber = "15500",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "CPO_Vehicle",
+                LeadSource = "Website_Direct",
+                Status = "Contacted",
+                Brand = "Honda",
+                Model = "Civic",
+                TrackingId = "WEB-DIR-110",
+                LeadOwnerName = "Carlos Ruiz",
+                LeadCreationDate = leadDate2,
+                LeadLastChangeDate = leadDate2,
+                StatusTimestamp = utcNow.AddMinutes(-10),
+                UtmMedium = "Organic",
+                CampaignId = "RE-MARKETING-01",
+                CampaignDescription = "Retargeting de visitantes web",
+                Remark = "El cliente ya tuvo un Honda, busca plan de recambio (Trade-in).",
             };
 
-            // Ejemplo 3: Lead de Toyota - Rechazado (Instagram)
+            // 3. TESLA - Test Drive solicitado (Vía Código QR en Evento)
             var message3 = new MessageModel
             {
-                SiteNumber = "44022",
-                LeadId = "11223",
-                LeadType = "Offer_Hybrid",
-                LeadSource = "Instagram_Promo",
-                Status = "Rejected",
-                Brand = "Toyota",
-                Model = "Corolla Cross",
-                RejectReason = "Customer not interested in financing",
-                LeadOwnerName = "Ricardo Soto",
-                LeadCreationDate = utcNow.AddDays(-8),
-                LeadLastChangeDate = utcNow.AddDays(-8),
-                StatusTimestamp = utcNow.AddMinutes(-30),
-                LeadRejected = "true"
+                SiteNumber = "99001",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "Demo_Request",
+                LeadSource = "Event_Expo_Auto",
+                Status = "Appointment Set",
+                Brand = "Tesla",
+                Model = "Model 3",
+                TrackingId = "QR-EXPO-2026",
+                LeadOwnerName = "Elena Martínez",
+                LeadCreationDate = leadDate3,
+                LeadLastChangeDate = leadDate3,
+                StatusTimestamp = utcNow.AddHours(-2),
+                UtmMedium = "Offline_QR",
+                CampaignId = "EXPO-FEB",
+                CampaignDescription = "Feria del Automóvil Verano",
+                Remark = "Solicitó prueba de manejo para el fin de semana. Prioridad Alta.",
             };
 
-            // Ejemplo 4: Lead de BMW - Test Drive (Showroom)
+            // 4. CHEVROLET - Flotas/Empresarial (Vía Google Search)
             var message4 = new MessageModel
             {
-                SiteNumber = "29024",
-                LeadId = "99887",
-                LeadType = "Demo_Request",
-                LeadSource = "Showroom_Walkin",
-                Status = "Test Drive Scheduled",
-                Brand = "BMW",
-                Model = "Series 3",
-                TestDriveDate = utcNow.AddDays(3),
-                LeadOwnerName = "Carla Reyes",
-                LeadCreationDate = utcNow.AddDays(-12),
-                LeadLastChangeDate = utcNow.AddDays(-12),
-                StatusTimestamp = utcNow.AddHours(-1)
+                SiteNumber = "44050",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "Fleet_Sale",
+                LeadSource = "Google_Ads_Search",
+                Status = "In Negotiation",
+                Brand = "Chevrolet",
+                Model = "Silverado",
+                TrackingId = "GGL-SRCH-552",
+                LeadOwnerName = "Roberto Gómez",
+                LeadCreationDate = leadDate4,
+                LeadLastChangeDate = leadDate4,
+                StatusTimestamp = utcNow.AddMinutes(-45),
+                UtmMedium = "CPC",
+                CampaignId = "CMP-TRUCKS-26",
+                CampaignDescription = "Campaña Camionetas de Trabajo",
+                Remark = "Cotización por 5 unidades para empresa minera.",
             };
 
-            // Ejemplo 5: Lead de Jeep - Perdido (Campaña Email)
+            // 5. HYUNDAI - Consulta por WhatsApp (Vía Botón Web)
             var message5 = new MessageModel
             {
-                SiteNumber = "50505",
-                LeadId = "33441",
-                LeadType = "Fleet_Sale",
-                LeadSource = "Email_Marketing_Jan",
-                Status = "Lost",
-                Brand = "Jeep",
-                Model = "Compass",
-                LostReason = "Bought competitor brand",
-                TrackingId = "EML-771122",
-                LeadOwnerName = "Andrés Molina",
-                LeadCreationDate = utcNow.AddDays(-20),
-                LeadLastChangeDate = utcNow.AddDays(-20),
-                StatusTimestamp = utcNow.AddDays(-1),
-                LeadLost = "true"
+                SiteNumber = "30022",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "New_Vehicle",
+                LeadSource = "WhatsApp_Business",
+                Status = "Waiting for Info",
+                Brand = "Hyundai",
+                Model = "Tucson",
+                TrackingId = "WABA-TUC-09",
+                LeadOwnerName = "Ana Lía Castro",
+                LeadCreationDate = leadDate5,
+                LeadLastChangeDate = leadDate5,
+                StatusTimestamp = utcNow.AddHours(-12),
+                UtmMedium = "Messenger",
+                CampaignId = "SOCIAL-CONVERSION",
+                CampaignDescription = "Conversión directa desde RRSS",
+                Remark = "Pregunta por disponibilidad de colores y entrega inmediata.",
             };
-            return new List<MessageModel> { message, message1, message2, message3, message4, message5 };
+
+            // 6. VOLVO - Lead de Re-compra (Vía Email Marketing)
+            var message6 = new MessageModel
+            {
+                SiteNumber = "88011",
+                LeadId = Guid.NewGuid().ToString(),
+                LeadType = "Loyalty_Program",
+                LeadSource = "Newsletter_Feb",
+                Status = "Qualified",
+                Brand = "Volvo",
+                Model = "XC60",
+                TrackingId = "EML-LYL-202",
+                LeadOwnerName = "Marcos Silveira",
+                LeadCreationDate = leadDate6,
+                LeadLastChangeDate = leadDate6,
+                StatusTimestamp = utcNow.AddDays(-1),
+                UtmMedium = "Email",
+                CampaignId = "LOYALTY-2026",
+                CampaignDescription = "Fidelización Clientes 2023-2024",
+                Remark = "Cliente antiguo. Interesado en el nuevo modelo híbrido enchufable.",
+            };
+
+
+            return new List<MessageModel> { message1, message2, message3, message4, message5, message6 };
         }
     }
 }
