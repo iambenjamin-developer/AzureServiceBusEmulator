@@ -102,6 +102,13 @@ namespace SubscriberWorker
             //throw new Exception("Error de prueba para el manejador de errores");
             _logger.LogInformation($"Lead Id: {obj.LeadId}");
 
+            var cutoffDate = DateTimeOffset.UtcNow.AddDays(-7);
+
+            if (obj.LeadLastChangeDate < cutoffDate)
+            {
+                await args.CompleteMessageAsync(args.Message);
+            }
+
             bool sent = await SendWebHook(obj);
             if (sent)
             {
@@ -128,6 +135,7 @@ namespace SubscriberWorker
 
         private async Task<bool> SendWebHook(LeadModel lead)
         {
+            return true;
             if (lead != null)
             {
                 // 3. Crear el cliente HTTP y enviar el POST
